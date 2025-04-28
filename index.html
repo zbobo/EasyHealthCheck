@@ -1,12 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<title>症狀統計表</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
+  th { background-color: #f2f2f2; }
+  .checkbox-group { display: flex; flex-wrap: wrap; }
+  .checkbox-item { width: 20%; box-sizing: border-box; padding: 5px; text-align: left; }
+</style>
 </head>
 <body>
-    helloworld wow
+<h1>症狀勾選統計表</h1>
+<form id="symptomForm">
+<div class="checkbox-group" id="symptomRows">
+<!-- 症狀項目會動態生成 -->
+</div>
+
+<h2>統計結果</h2>
+<table id="countTable">
+<tr><th>P</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>X</th><th>Ca</th><th>Q10</th><th>O</th><th>W</th><th>Z</th><th>卵</th><th>魚</th><th>纖</th><th>香</th><th>晶</th><th>紫</th><th>蜂</th><th>甜</th><th>a</th></tr>
+<tr><td id='count_P'>0</td><td id='count_A'>0</td><td id='count_B'>0</td><td id='count_C'>0</td><td id='count_D'>0</td><td id='count_E'>0</td><td id='count_X'>0</td><td id='count_Ca'>0</td><td id='count_Q10'>0</td><td id='count_O'>0</td><td id='count_W'>0</td><td id='count_Z'>0</td><td id='count_卵'>0</td><td id='count_魚'>0</td><td id='count_纖'>0</td><td id='count_香'>0</td><td id='count_晶'>0</td><td id='count_紫'>0</td><td id='count_蜂'>0</td><td id='count_甜'>0</td><td id='count_a'>0</td></tr>
+</table>
+
+<script>
+const symptoms = [
+  {name: "眼睛疲勞乾澀", codes: "P,A,B,E,W,魚,晶"},
+  {name: "青春痘、粉刺", codes: "P,A,B,C,E,卵,W,Z"},
+  {name: "口乾舌燥", codes: "P,A,B,C,A,W"},
+  {name: "過敏性鼻炎", codes: "P,A,B,C,E,纖,O"},
+  {name: "易掉髮、頭髮易斷裂", codes: "P,A,B,卵,香"},
+  {name: "胃酸逆流", codes: "P,B,C,甜"},
+  {name: "心悸、胸悶", codes: "P,D,X,B,C,A,Q10"},
+  {name: "白帶、搔癢", codes: "P,A,B,C,乳"},
+  {name: "頭皮屑", codes: "P,A,B,E,卵,O,W,Z"},
+  {name: "濕疹、異位性皮膚炎", codes: "P,A,B,C,E,纖,O"},
+  {name: "乾眼症、白內障", codes: "P,D,X,A,B,C,Ca,晶"},
+  {name: "害喜", codes: "P,C,A,魚"},
+  {name: "氣重", codes: "P,A,B,C,A,魚"},
+  {name: "耳鳴、暈眩", codes: "P,C,魚,香,W"},
+  {name: "免疫異常", codes: "P,D,X,A,B,C,a,W,Z"},
+  {name: "易打呵欠", codes: "P,D,X,B,C,W,Z"},
+  {name: "易疲勞", codes: "P,D,X,B,卵,W,Z"},
+  {name: "經期不順、疼痛", codes: "P,C,B,Ca,A,W"},
+  {name: "胃口不好", codes: "P,B,E,C,卵"},
+  {name: "乾癬", codes: "P,A,B,C,E,纖,O"},
+  {name: "皮膚搔癢、過敏", codes: "P,A,B,C,E,纖,O"},
+  {name: "易感冒、感染", codes: "P,D,X,A,B,C,E,乳,紫,蜂"},
+  {name: "暈車、暈機", codes: "P,B"},
+  {name: "重口味", codes: "P,A,B,C,Ca,甜"},
+  {name: "記憶力減退", codes: "P,B,C,A,香"},
+  {name: "易生氣、不煩躁", codes: "P,B,Ca,Z"},
+  {name: "壓力被夜", codes: "P,D,X,B,C,W,Z"},
+  {name: "過重", codes: "P,D,X,A,B,C,a,纖,卵"},
+  {name: "靜脈曲張", codes: "P,C,E,W,Z"},
+  {name: "糖尿病", codes: "P,D,X,A,B,C,纖,魚,W,Z"},
+  {name: "血壓異常", codes: "P,D,X,A,B,C,Q10,魚,纖,W,Z"},
+  {name: "不易受孕", codes: "P,D,X,A,B,卵,魚,W"},
+  {name: "懷孕", codes: "P,D,X,B,C,A,魚,卵"},
+  {name: "腸脹氣", codes: "P,B,魚,卵,乳"},
+  {name: "貧血", codes: "P,B,C,E,纖,W,Z"},
+  {name: "頻尿、夜尿", codes: "P,D,X,B,C,A,W"},
+  {name: "偏頭痛", codes: "P,B,C,A,卵"},
+  {name: "睡眠障礙", codes: "P,D,X,B,C,A,W"},
+  {name: "胃抽筋", codes: "P,C,Ca,甜"},
+  {name: "胃腸琉緩", codes: "P,B,C,A,魚"},
+  {name: "更年期", codes: "P,D,X,B,C,A,E,O"},
+  {name: "便秘、痔瘡", codes: "P,D,X,B,C,A,魚"},
+  {name: "痛風", codes: "P,D,X,B,魚"},
+  {name: "腎臟、囊腫", codes: "P,D,X,B,C,Ca,W"},
+  {name: "水腫", codes: "P,D,X,B,C,W"},
+  {name: "脂肪肝", codes: "P,D,X,B,C,纖,魚,W"},
+  {name: "指甲變形", codes: "P,C,Ca,甜"},
+  {name: "脫指(延)甲", codes: "P,D,X,B,卵"},
+  {name: "脫落手", codes: "P,B,O,W"},
+  {name: "消化不良、脹氣", codes: "P,D,X,B,C,A,甜"},
+  {name: "手腳冰冷", codes: "P,D,X,B,C,魚,卵,甜"},
+  {name: "酵素異常", codes: "P,D,X,A,B,C,魚,纖,紫,蜂"},
+  {name: "常服藥", codes: "P,D,X,A,B,C,A,魚,纖,紫,蜂"}
+];
+
+function updateCounts() {
+  var counts = {};
+  var allCodes = ['P','A','B','C','D','E','X','Ca','Q10','O','W','Z','卵','魚','纖','香','晶','紫','蜂','甜','a'];
+  allCodes.forEach(function(code) { counts[code] = 0; });
+
+  var checkboxes = document.querySelectorAll('input[type=checkbox]');
+  checkboxes.forEach(function(checkbox) {
+      if (checkbox.checked) {
+          var codes = checkbox.dataset.codes.split(',');
+          codes.forEach(function(code) {
+              counts[code] += 1;
+          });
+      }
+  });
+
+  allCodes.forEach(function(code) {
+      document.getElementById('count_' + code).innerText = counts[code];
+  });
+}
+
+window.onload = function() {
+  let container = document.getElementById("symptomRows");
+  symptoms.forEach((item, index) => {
+      let div = document.createElement("div");
+      div.className = "checkbox-item";
+      div.innerHTML = `<input type="checkbox" id="symptom${index}" data-codes="${item.codes}" onchange="updateCounts()"> ${item.name}`;
+      container.appendChild(div);
+  });
+};
+</script>
+
+</form>
 </body>
 </html>
